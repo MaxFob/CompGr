@@ -1,0 +1,59 @@
+<HTML> 
+<BODY> 
+<canvas id='lab03' height='500' width='500' style='border:1px solid'> 
+</canvas> 
+ 
+<script> 
+ var canvas = document.getElementById('lab03'); 
+ var ctx = canvas.getContext('2d'); 
+  
+ function line(ctx,x1,y1,x2,y2) 
+ { 
+  var deltaX = Math.abs(x2 - x1); 
+  var deltaY = Math.abs(y2 - y1); 
+  var WX; 
+  var WY; 
+  var error = deltaX - deltaY; 
+  if(x1 > x2) 
+   WX = -1; 
+  else 
+   WX = 1; 
+  if(y1 > y2) 
+   WY = -1; 
+  else 
+   WY = 1; 
+  while(x1 != x2 || y1 != y2) 
+  { 
+   ctx.fillRect(x1,y1,1,1); 
+   var error2 = error * 2; 
+   if(error2 > -deltaY) 
+   { 
+    error -= deltaY; 
+    x1 += WX; 
+   } 
+   if(error2 < deltaX) 
+   { 
+    error += deltaX; 
+    y1 += WY; 
+   } 
+  } 
+ } 
+ let point_index=0; 
+ canvas.addEventListener('click',function(e) 
+ { 
+  if(point_index == 0){ 
+   x1=e.offsetX; 
+   y1=e.offsetY; 
+   point_index = 1; 
+  } 
+  else 
+  { 
+   x2=e.offsetX; 
+   y2=e.offsetY; 
+   line(ctx,x1,y1,x2,y2); 
+   point_index = 0; 
+  } 
+ }); 
+</script> 
+ 
+</BODY>

@@ -1,0 +1,36 @@
+<HTML> 
+<BODY> 
+<canvas id='lab02_1' height='1000' width='1000' style='border:1px solid'> 
+</canvas> 
+<canvas id='lab02_2' height='1000' width='1000' style='border:1px solid'> 
+</canvas> 
+<a href='#' id='btn' class='button' style='font-size: 200%'>BUTTON</a> 
+ 
+<script> 
+ var canvas = document.getElementById('lab02_1'); 
+ var ctx = canvas.getContext('2d'); 
+ var canvas2 = document.getElementById('lab02_2'); 
+ var ctx2 = canvas2.getContext('2d'); 
+ var img = new Image(); 
+ img.src = 'Lab02.jpg'; 
+ img.onload = function() { 
+  ctx.drawImage(img, 0, 0); 
+ }; 
+ var WD = function() { 
+  var Data_Img = ctx.getImageData(0, 0, canvas.width, canvas.height); 
+  for(var i = 0; i < Data_Img.data.length; i += 4){ 
+ var any = (Data_Img.data[i] + Data_Img.data[i + 1] + Data_Img.data[i + 2]) / 3; 
+ Data_Img.data[i] = any; 
+ Data_Img.data[i + 1] = any; 
+ Data_Img.data[i + 2] = any; 
+  } 
+  ctx2.putImageData(Data_Img, 0, 0); 
+ }; 
+ 
+ var WDbtn = document.getElementById('btn'); 
+ WDbtn.addEventListener('click', WD); 
+ 
+</script> 
+ 
+</BODY> 
+</HTML>

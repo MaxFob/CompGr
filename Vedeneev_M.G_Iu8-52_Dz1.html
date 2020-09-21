@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html>
+<body>
+<canvas id='lab01' height="500" width="500" style="border:1px solid"></canvas>
+  <script>
+    var canvas = document.getElementById('lab01');
+    var ctx = canvas.getContext('2d');
+    var flag = 0;    
+    var j = 0;
+    canvas.addEventListener('click', function(event) {
+      if (flag == 0) {
+        flag = 1;
+      } else {
+        flag = 0;
+      }
+      let anime = setInterval (function() {
+        if (flag == 0) {
+          clearInterval(anime);
+          return;
+        }
+        if (flag == 1) {
+          ctx.clearRect(0,0,canvas.width, canvas.height)
+          for (var i=0; i<100; i++) {
+            ctx.fillRect((60+j)%canvas.width, (10+i)%canvas.height, 4, 4)
+          ctx.fillStyle="#FF00FF";  
+           ctx.fillRect((10+j+i)%canvas.width, (60)%canvas.height, 4, 4)
+           ctx.fillStyle="#000000";
+          }
+          j+=5;
+        }
+      },50);
+      
+    });      
+  
+  </script>    
+</body>
+</html>
