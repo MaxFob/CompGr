@@ -1,0 +1,162 @@
+<HTML>
+
+<BODY>
+<canvas id='homework_05' height='500' width='500' style='border:1px solid'>
+</canvas>
+<h2 id="construct">Construct a polygon (Press ENTER when done)</h2>
+
+<script>
+    
+	let canvas = document.getElementById('homework_05');
+    let suggest = document.getElementById('construct');
+    let ctx = canvas.getContext('2d');
+    
+    //Функция для постоения линии
+    function Line(ctx, x0, y0, x1, y1) {
+        let dy = Math.abs(y1 - y0);
+        let dx = Math.abs(x1 - x0);
+        let dmax = Math.max(dx, dy);
+        let dmin = Math.min(dx, dy);
+        let xdir = 1;
+        if (x1 < x0) xdir = -1;
+        let ydir = 1;
+        if (y1 < y0) ydir = -1;
+        let eps = 0;
+        let s = 1;
+        let k = 2 * dmin;
+        if (dy <= dx) {
+            let y = y0;
+            for (let x = x0; x * xdir <= x1 * xdir; x += xdir) {
+                ctx.fillRect(x * s, y * s, 2 * s, 2 * s);
+                eps = eps + k;
+                if (eps > dmax) {
+                    y += ydir;
+                    eps = eps - 2 * dmax;
+                }
+            }
+        } else {
+            let x = x0;
+            for (let y = y0; y * ydir <= y1 * ydir; y += ydir) {
+                ctx.fillRect(x * s, y * s, 2 * s, 2 * s);
+                eps = eps + k;
+                if (eps > dmax) {
+                    x += xdir;
+                    eps = eps - 2 * dmax;
+                }
+            }
+        }
+    }
+
+    let state = 1; 
+    let flag = 1;
+    let polygon_points = [];
+    let polygon_points_number = 0;
+    let x0 = 0;
+    let y0 = 0;
+    let ax, ay;
+    let bx, by;
+    let p1x, p1y;
+    let p2x, p2y;
+
+    class Pixel {
+        constructor(x,y){
+            this.x = x;
+            this.y = y;
+        }
+    }
+   
+    canvas.addEventListener('click', function(event){
+        if (state){
+            //Постоение многоугольника
+            if (flag){
+                if (event.offsetX > 0 && event.offsetX < canvas.width)
+                    if (event.offsetY > 0 && event.offsetY < canvas.height){
+                        polygon_points[polygon_points_number] = new Pixel(event.offsetX, event.offsetY);
+                        polygon_points_number ++;
+                        
+                        x0 = event.offsetX;
+                        y0 = event.offsetY;
+                        ctx.fillRect(event.offsetX, event.offsetY, 3, 3);
+                        flag = 0;
+                    }
+            }
+            else {
+                polygon_points[polygon_points_number] = new Pixel(event.offsetX, event.offsetY);
+                polygon_points_number++;
+
+                ctx.fillRect(event.offsetX, event.offsetY, 3, 3);
+                Line(ctx, x0, y0, event.offsetX, event.offsetY);
+                x0 = event.offsetX;
+                y0 = event.offsetY;
+            }
+        }
+        else {
+            //Метод Кируса-Бека
+            if (flag){
+                if (event.offsetX > 0 && event.offsetX < canvas.width){
+                    if (event.offsetY > 0 && event.offsetY < canvas.height){
+                        x0 = event.offsetX;
+                        y0 = event.offsetY;
+                        ctx.fillRect(event.offsetX, event.offsetY, 3, 3)
+                        flag = 0;
+                    }
+                }
+            }
+            else {
+                ctx.fillRect(event.offsetX, event.offsetY, 3, 3);
+                Line(ctx, x0, y0, event.offsetX, event.offsetY);
+                
+                ax = x0;
+                ay = y0;
+                bx = event.offsetX;
+                by = event.offsetY;
+                let crossings = [];
+                let crossings_count = 0;
+
+                for (let point_number = 0; point_number < polygon_points_number; ++point_number){
+                    p1x = polygon_points[point_number].x;
+                    p1y = polygon_points[point_number].y;
+                    p2x = polygon_points[(point_number + 1) % polygon_points_number].x;
+                    p2y = polygon_points[(point_number + 1) % polygon_points_number].y;
+
+                    t = ((p1y - p2y) * (ax - p1x) + (p2x - p1x) * (ay - p1y)) / ((bx - ax) * (p2y - p1y) + (by - ay) * (p1x - p2x))
+
+                    if (t <= 1 && t >= 0){
+                        let ex = (bx - ax) * t + ax;
+                        let ey = (by - ay) * t + ay;
+
+                        crossings[crossings_count] = new Pixel(ex, ey);
+                        crossings_count += 1;
+                    }      
+                }
+
+                if (crossings_count == 2){
+                    ctx.fillStyle = "#ff00ff";
+                    Line (ctx, crossings[0].x, crossings[0].y, crossings[1].x, crossings[1].y);
+                    ctx.fillStyle = "#000000";
+                }
+                else if (crossings_count == 1){
+                    ctx.fillStyle = "#ff00ff";
+                    Line (ctx, ex, ey, bx, by);
+                    ctx.fillStyle = "#000000";
+                }
+
+                flag = 1;
+            }
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (state == 1 && polygon_points_number > 1) {
+            suggest.textContent = "Please draw lines";
+            state = 0;
+            flag = 1;
+            //Построение последней линии
+            Line(ctx, polygon_points[0].x, polygon_points[0].y, polygon_points[polygon_points_number - 1].x, polygon_points[polygon_points_number - 1].y);
+        }
+    });
+        
+</script>
+
+</BODY>
+</HTML>
