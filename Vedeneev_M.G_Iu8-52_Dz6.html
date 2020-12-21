@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<title>Задание №6</title>
+
+<body>
+<p>Original</p>
+<canvas id='lab06' height='450' width='500' style='border:1px solid'></canvas>
+
+<p><a href='#' class='batton' id='btn01'>Res</a></p>
+<canvas id='lab06_2' height='450' width='500' style='border:1px solid'></canvas>
+
+<!--<p><a href='#' class='batton' id='btn03'>Sobel-Bell</a></p>-->
+<!--<canvas id='lab04_4' height='667' width='1000' style='border:1px solid'></canvas>-->
+
+<!--<a href='#' class='batton' id='btn02'>Save</a>-->
+
+<script>
+    let canvas = document.getElementById('lab06');
+    let ctx = canvas.getContext('2d');
+
+    let canvas2 = document.getElementById('lab06_2');
+    let ctx2 = canvas2.getContext('2d');
+
+    function Line(ctx, x0, y0, x1, y1) {
+        let dy = Math.abs(y1 - y0);
+        let dx = Math.abs(x1 - x0);
+        let dmax = Math.max(dx, dy);
+        let dmin = Math.min(dx, dy);
+        let xdir = 1;
+        if (x1 < x0) xdir = -1;
+        let ydir = 1;
+        if (y1 < y0) ydir = -1;
+        let eps = 0;
+        let s = 1;
+        let k = 2 * dmin;
+        if (dy <= dx) {
+            let y = y0;
+            for (let x = x0; x * xdir <= x1 * xdir; x += xdir) {
+                ctx.fillRect(x * s, y * s, 2 * s, 2 * s);
+                eps = eps + k;
+                if (eps > dmax) {
+                    y += ydir;
+                    eps = eps - 2 * dmax;
+                }
+            }
+        } else {
+            let x = x0;
+            for (let y = y0; y * ydir <= y1 * ydir; y += ydir) {
+                ctx.fillRect(x * s, y * s, 2 * s, 2 * s);
+                eps = eps + k;
+                if (eps > dmax) {
+                    x += xdir;
+                    eps = eps - 2 * dmax;
+                }
+            }
+        }
+    }
+
+    let img = new Image();
+    img.src = 'tony.png';
+
+    let points = [];
+    img.onload = function () {
+
+        ctx.drawImage(img, 0, 0);
+        let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        console.log(imageData);
+        let newImageData = ctx2.createImageData(canvas.width, canvas.height);
+        for (let i = 0; i < canvas.height; ++i) {
+            for (let j = 0; j < canvas.width; ++j) {
+                if (imageData.data[4 * (i * canvas.height + j)] < 50 &&
+                    imageData.data[4 * (i * canvas.height + j) + 1] < 50 &&
+                    imageData.data[4 * (i * canvas.height + j) + 2] < 50 &&
+                    imageData.data[4 * (i * canvas.height + j) + 3] >= 10) {
+                    for (let k = 0; k < 3; ++k) {
+                        newImageData.data[4 * (i * canvas.height + j) + k] = 255;
+                    }
+                    points.push({x: j, y: i});
+                } else {
+                    for (let k = 0; k < 3; ++k) {
+                        newImageData.data[4 * (i * canvas.height + j) + k] = 0;
+                    }
+                }
+                newImageData.data[4 * (i * canvas.height + j) + 3] = 255;
+            }
+        }
+        ctx2.putImageData(newImageData, 0, 0);
+
+        const part = 48;
+        console.log(points);
+
+        let k_array = [];
+        let param_2d = [];
+        for (let i = 0; i < part; ++i) {
+            k_array.push(Math.tan((i + 0.01) * Math.PI / part));
+            param_2d.push([]);
+        }
+
+        for (let i = 0; i < points.length; ++i) {
+            for (let j = 0; j < part; ++j) {
+                param_2d[j].push(points[i].y - points[i].x * k_array[j]);
+            }
+        }
+
+        let d = 2;
+        const tred = 600;
+        for (let i = 0; i < part; ++i) {
+            param_2d[i].sort();
+            let base;
+            let j = 1;
+            while (j < param_2d[i].length) {
+                let count = 0;
+                base = param_2d[i][j];
+                while ((param_2d[i][j] < base + d) && (j < param_2d[i].length)) {
+                    ++count;
+                    ++j;
+                }
+                console.log("k = " + i + "; b = " + base + "; count = " + count);
+                ctx2.fillStyle = "#00FF00";
+                if (count > tred) {
+                    let l = function(x) {
+                        return k_array[i] * x + base;
+                    };
+                    Line(ctx2, 0, l(0), canvas.width, l(canvas2.width))
+                }
+            }
+        }
+
+        console.log(param_2d);
+    };
+</script>
+
+</body>
+</html>
