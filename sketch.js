@@ -14,15 +14,18 @@ var rotating = false;
 
 function setup() {
   createCanvas(size, size);
+ 
+  drawx = createButton('Pyramid');
+  drawx.size(width / 3, 50);
+  drawx.mousePressed(pyramid);
 
-  let drawB = select("#pyramid");
-  drawB.mousePressed(pyramid);
+  rotatex = createButton('Rotate');
+  rotatex.size(width / 3, 50);
+  rotatex.mousePressed(rotatee);
 
-  let rotateB = select("#rotatee");
-  rotateB.mousePressed(rotatee);
-
-  let resetB = select("#reset");
-  resetB.mousePressed(reset);
+  resetx = createButton('Reset');
+  resetx.size(width / 3, 50);
+  resetx.mousePressed(reset);
 }
 
 function reset() {
@@ -96,7 +99,7 @@ function draw() {
 
   if (rotating) {
     angle += 0.03;
-    dark[8] = select('#speedSlider').value() / 100;
+    dark[8] = 25 / 100;
     for (let i = 0; i < dark.length - 5; i++) {
       dark[i] += dark[i + 4] * dark[8];
       if (dark[i] > 35.0 || dark[i] < 0.0) {
