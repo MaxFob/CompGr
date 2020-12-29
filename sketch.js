@@ -6,23 +6,33 @@ var V = [],
 
 var obj = 0;
 
+var angle = 0;
+
+var c, a;
+
+var rotating = false;
+
 function setup() {
   createCanvas(size, size);
 
-  let shuttleB = select("#shuttle");
-  shuttleB.mousePressed(shuttle);
+  let drawB = select("#pyramid");
+  drawB.mousePressed(pyramid);
 
-  let teapotB = select("#teapot");
-  teapotB.mousePressed(teapot);
+  let rotateB = select("#rotatee");
+  rotateB.mousePressed(rotatee);
 
-  let resetB = select("#humanoid");
-  resetB.mousePressed(humanoid);
+  let resetB = select("#reset");
+  resetB.mousePressed(reset);
 }
 
 function reset() {
   V = [];
   E = [];
   background(255);
+}
+
+function rotatee() {
+  rotating = !rotating;
 }
 
 function verticies() {
@@ -57,48 +67,69 @@ function verticies() {
     v[1] += -minY;
 
     // заполнение 90% по макс оси
-    v[0] *= ceil(k * 0.9);
-    v[1] *= ceil(k * 0.9);
+    v[0] *= ceil(k * 0.8);
+    v[1] *= ceil(k * 0.8);
 
     v[0] += size * obj;
     v[1] += (size - dY * k) / 2;
   }
-  
+
   for (let v of V) {
-    v[1] = size - v[1];
+    v[0] += random(-20, 20);
+    v[1] += random(-20, 20);
+    
+    v[1] = size - v[1] - 100;
   }
-  
+
+  r = random(100, 170);
+  g = random(100, 170);
+  b = random(100, 170);
+
+  angle = 0;
   draw();
 }
 
+let dark = [10.0, 20.0, 30.0, 0.0, 1, 1, 1, 1, 0.13];
+
 function draw() {
-  noLoop();
   background(255);
 
+  if (rotating) {
+    angle += 0.03;
+    dark[8] = select('#speedSlider').value() / 100;
+    for (let i = 0; i < dark.length - 5; i++) {
+      dark[i] += dark[i + 4] * dark[8];
+      if (dark[i] > 35.0 || dark[i] < 0.0) {
+        dark[i + 4] *= -1;
+      }
+    }
+  }
+
+  let index = 0;
   for (let e of E) {
     for (let i = 0; i < e.length; i++) {
       dots.push([V[e[i] - 1][0], V[e[i] - 1][1]]);
     }
 
-    let r = random(100, 225);
-    let g = random(100, 225);
-    let b = random(100, 225);
-    let a = 175;
-    stroke(r, g, b, a);
-    fillPoly();
+    fillPoly(index);
+    index += 1;
     dots = [];
 
-
+    strokeWeight(2);
     stroke(0, 0, 0);
     for (let i = 0; i < e.length - 1; i++) {
       line(V[e[i] - 1][0], V[e[i] - 1][1], V[e[i + 1] - 1][0], V[e[i + 1] - 1][1]);
     }
     line(V[e[0] - 1][0], V[e[0] - 1][1], V[e[e.length - 1] - 1][0], V[e[e.length - 1] - 1][1]);
   }
+
 }
 
 
-function fillPoly() {
+function fillPoly(i) {
+  let aa = cos(angle);
+  stroke(r - dark[i] * 4, g - dark[i] * 4, b - dark[i] * 4);
+
   let Y = [];
   for (let dot of dots) {
     Y.push(dot[1]);
@@ -136,6 +167,8 @@ function fillPoly() {
 
     if (inter.length % 2 == 0 && inter.length > 0) {
       for (let i = 0; i < inter.length; i += 2) {
+
+        strokeWeight(3)
         line(inter[i], y, inter[i + 1], y);
       }
     }
